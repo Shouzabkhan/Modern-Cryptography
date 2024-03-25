@@ -1,0 +1,6 @@
+In the part 1, we implement a strategy for creating an immutable record of content snapshots using Merkle trees and hash chaining. It operates on a directory structure where each 
+subdirectory represents a snapshot of data at a given time.
+
+In this part2 , we ensure data integrity and traceability through a carefully orchestrated process that includes snapshot generation, Merkle root calculation, timestamping, and 
+digital signing. 
+
