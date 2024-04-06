@@ -1,0 +1,72 @@
+
+- Update the openSSL version
+wget https://www.openssl.org/source/openssl-3.2.1.tar.gz
+
+- extract the source code tarball
+tar -xzvf openssl-3.2.1.tar.gz
+
+- change the directory to the extracted OpenSSL directory:
+cd openssl-3.2.1
+
+- CONFIGURE THE OPENSSL
+./config \
+--prefix=/opt/openssl \      #Specifies the installation directory.
+--openssldir=/opt/openssl \  #Specifies the directory for OpenSSL-specific files.
+no-shared \ 		     #Forces static linking.
+-DOPENSSL_TLS_SECURITY_LEVEL=2 \  #Configures the default security level.
+enable-ec_nistp_64_gcc_128   #Activates optimized elliptic curves.
+
+- build OpenSSL
+make
+
+- test the build OpenSSL
+make test
+
+-Install OpenSSL after a successful build
+sudo make install
+
+- RSA private key generation
+openssl genpkey -out fd.key \
+-algorithm RSA \
+-pkeyopt rsa_keygen_bits:2048 \
+-aes-128-cbc
+
+- Generating a Certificate Signing Request (CSR):
+openssl req -new -key fd.key -out fd.csr
+
+- Generating a Certificate Signing Request (CSR):
+sudo openssl req -new -key fd.key -out fd.csr
+
+- Generating a Self-Signed Certificate:
+openssl req -x509 -new -key fd.key -out fd.crt
+
+- Root CA Configuration (root-ca.conf)/ Root CA Directory Structure
+mkdir root-ca
+cd root-ca
+mkdir certs db private
+chmod 700 private
+touch db/index
+sudo sh -c 'openssl rand -hex 16 > db/serial'
+sudo sh -c 'echo 1001 > db/crlnumber'
+
+- Root CA Generation
+openssl req -new \
+    -config root-ca.conf \
+    -out root-ca.csr \
+    -keyout private/root-ca.key
+
+openssl ca -selfsign \
+    -config root-ca.conf \
+    -in root-ca.csr \
+    -out root-ca.crt \
+    -extensions ca_ext
+
+- Root CA Operations
+openssl ca -gencrl \
+    -config root-ca.conf \
+    -out root-ca.crl
+
+- testing cnn.com
+openssl s_client -connect www.cnn.com:443
+
+
